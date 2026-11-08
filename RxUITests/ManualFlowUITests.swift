@@ -1,8 +1,17 @@
+// UI walk across Settings, Sources, and Calculator. setUp sets continueAfterFailure to true, so a failed check is recorded and later steps still run.
+// saveShot attaches a screenshot and writes a PNG under Desktop/Rx Proto2/debug-captures, creating that folder when it can.
+// On Settings, when the controls exist, the test sets Distance to inches, Radiation to Bq, and Default Material to Stainless Steel. It moves the first slider to the middle of its range and, when a second slider exists, moves that one to three quarters of its range. The first slider is the correction ratio, 0 to 100 percent. The second is the low-activity warning, 20 to 80 percent. It then chooses the Type IX films category.
+// The test requires a Restore Purchases button and an element whose label contains Remove Ads.
+// On Sources it taps Add when that button exists, types the name UITest Ir-192, and types the activity 3.7e12. With the radiation unit set to Bq, 3.7e12 becquerels is 100 curies, because one curie is 3.7e10 becquerels. Save is tapped when it is enabled.
+// On Calculator it tries a source label containing UITest, then Seeded, then another menu button. It types an SFD of 27.56 and a thickness of 0.47. After the switch to inches, Calculate multiplies by 25.4, so those entries are about 700 mm and about 12 mm. Calculate is tapped when it is enabled.
+// The test then looks for a static text label that begins with Time: and for the static text Ad placeholder. It opens Settings and Calculator again for the last screenshots.
+
 import XCTest
 
 final class ManualFlowUITests: XCTestCase {
     override func setUpWithError() throws { continueAfterFailure = true }
 
+    // Stores a named screenshot on the test result and as a PNG on the Desktop.
     private func saveShot(_ name: String) {
         let shot = XCUIScreen.main.screenshot()
         let a = XCTAttachment(screenshot: shot)
@@ -15,6 +24,7 @@ final class ManualFlowUITests: XCTestCase {
     }
 
     @MainActor
+    // Changes settings, adds a source, runs Calculate, and checks the purchase controls it can see.
     func testSettingsCalculatorSubscriptionFlow() throws {
         let app = XCUIApplication()
         app.launch()

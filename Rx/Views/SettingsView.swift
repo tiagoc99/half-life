@@ -1,3 +1,10 @@
+// Settings tab. Each control is an AppStorage property, so SwiftUI writes it to UserDefaults and the other screens read the same key.
+// distanceUnit and thicknessUnit store mm or in, default mm. radiationUnit stores Ci or Bq, default Ci. This screen stores the choice. The calculator converts inches to millimeters, and the activity fields convert becquerels to curies.
+// defaultMaterial is a Material raw value, default Carbon Steel. correctionRatio is the exposure safety margin in percent, from 0 to 100 in steps of 5, default 0. At 100 the exposure math multiplies time by 2. lowActivityWarning is the Sources threshold in percent of the original activity, from 20 to 80 in steps of 10, default 50.
+// filmCategory is Type D films, Type IX films, Type K films, or Custom. customFilmFactor is the absolute custom exposure in roentgens, default 1.0, and the field is shown when the category is Custom. Built-in film factors live in FilmType.
+// Reset All writes those preference defaults again. Saved sources stay under the separate sources key.
+// The Remove Ads section uses the PurchaseManager from ContentView. A true isSubscribed shows the subscribed label. Otherwise the button calls purchaseRemoveAds. The title includes the StoreKit display price per month when that product is loaded, and is Remove Ads when it is not. Restore calls restorePurchases. A lastErrorMessage is shown when one is present.
+
 import SwiftUI
 
 // Settings: units, defaults, alerts — persisted via AppStorage / UserDefaults.
@@ -137,6 +144,7 @@ struct SettingsView: View {
         }
     }
     
+    // Purchase button title, including the loaded product's display price when StoreKit has returned it.
     private var removeAdsButtonTitle: String {
         if let product = purchaseManager.products.first(where: { $0.id == PurchaseManager.removeAdsProductID }) {
             return "Remove Ads — \(product.displayPrice)/mo"

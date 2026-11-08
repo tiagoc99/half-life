@@ -1,3 +1,12 @@
+// Sources tab: the saved sources and their decayed activity.
+// ContentView owns sourceManager and passes it in. Each row asks calculateCurrentActivity for curies.
+// radiationUnit and lowActivityWarning come from AppStorage, which reads UserDefaults. The unit defaults to Ci. The warning defaults to 50, meaning 50 percent of the original activity.
+// displayActivity converts units for the label. When radiationUnit is Bq, it shows activityCi * 3.7e10 in scientific notation, using 3.7×10^10 becquerels in one curie. Any other unit string, including Ci, prints the curie number with two decimal places and that unit text.
+// Remaining percent is current activity divided by initial activity, times 100. When initial activity is not greater than 0, the percent used here is 100. The row is low when that percent is below lowActivityWarning. The progress value is the percent divided by 100, clamped from 0 to 1.
+// Isotope badges map Ir-192, Se-75, Co-60, and Yb-169 to a short label, an SF Symbol, and a color. An unknown isotope string keeps its first six characters and a gray badge.
+// An empty list shows No Sources and an Add button. The populated list can swipe-delete through sourceManager.deleteSource. Add presents AddSourceView. When the sheet closes, the name and activity text are cleared. The chosen isotope and date stay as they were.
+// Accessibility text sizes stack the badge above the text. Smaller sizes keep them side by side.
+
 import SwiftUI
 
 // Lists sources with decayed activity; respects radiationUnit and lowActivityWarning.
@@ -15,6 +24,7 @@ struct SourcesView: View {
     
     private static let bqPerCi: Double = 3.7e10
     
+    // Formats a curie activity for the row, converting to becquerels when the preference is Bq.
     private func displayActivity(_ activityCi: Double) -> String {
         if radiationUnit == "Bq" {
             return String(format: "%.3e %@", activityCi * Self.bqPerCi, radiationUnit)
@@ -114,6 +124,7 @@ struct SourcesView: View {
     }
     
     @ViewBuilder
+    // One list row: isotope badge, name, current activity, remaining-activity bar, and the low-activity caption.
     private func sourceRow(for source: Source) -> some View {
         let currentActivity = sourceManager.calculateCurrentActivity(for: source)
         let remainingPercent = source.initialActivity > 0

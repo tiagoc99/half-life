@@ -1,3 +1,13 @@
+// Calculator tab. It collects a source and a setup, asks SourceManager for an exposure time, and can run a countdown of that result.
+// The distance and thickness fields keep the typed text. The state properties are named sfdMm and thicknessMm, and the selected unit decides the conversion. On Calculate, the unit "in" multiplies by 25.4 millimeters per inch. Any other unit string, including the default mm, passes the typed number on as millimeters.
+// Target density starts as the text 2.5. correctionRatio is the Settings safety margin in percent, default 0. filmCategory defaults to Type D films. customFilmFactor defaults to 1.0 and is the absolute custom exposure in roentgens, the same preference FilmType reads.
+// Calculate runs when a source is selected and distance, thickness, and density all parse as Doubles. The button stays disabled when any of those three numbers is less than or equal to zero. The model function also accepts a thickness of exactly zero; this button asks for a thickness above zero.
+// calculatedTimeMin is in minutes. The label shows seconds, minutes times 60, when that is under 60 seconds, and shows minutes otherwise. After a positive result, a change to calculationInputs sets resultIsStale and the heading says the previous time is out of date.
+// The timer section is shown while a countdown is running, or while a positive result is still current. Start copies the calculated minutes into timeLeft as seconds and schedules a one-second Timer that subtracts one until zero. Stop, and onDisappear, invalidate that timer. A countdown keeps the duration it started with when the inputs later change.
+// filteredFilms limits the picker to the Settings category: D2 through D8, the four IX films, the five K films, or the single Custom row. An unrecognized category lists every film. reconcileFilmSelection moves the selection to IX100, T200, Custom, or D7 when the current film is outside the category.
+// The default material is copied in the first time this screen appears. A later visit keeps the material chosen here, unless the Settings default itself changes. Source selection follows the UUID. synchronizeSelectedSource clears it when that id is gone. calculationInputs also watches isotope, curies, and date, because Source equality compares ids only.
+// The activity caption uses the same becquerel rule as Sources: multiply curies by 3.7e10 when the unit is Bq.
+
 import SwiftUI
 
 // Exposure calculator: source, film, material, SFD, thickness → time + timer.
@@ -28,6 +38,7 @@ struct CalculatorView: View {
     private static let bqPerCi: Double = 3.7e10
     
     // Unique FilmType cases per display row (no duplicate ForEach ids).
+    // Film rows for the current category. Each FilmType case is a separate picker id.
     private var filteredFilms: [(film: FilmType, display: String)] {
         switch filmCategory {
         case "Type D films":
@@ -61,6 +72,7 @@ struct CalculatorView: View {
         }
     }
     
+    // Shows decayed activity in curies, or in becquerels when that preference is selected.
     private func formatActivityCi(_ activityCi: Double) -> String {
         if radiationUnit == "Bq" {
             return String(format: "%.3e %@", activityCi * Self.bqPerCi, radiationUnit)
@@ -231,6 +243,7 @@ struct CalculatorView: View {
     }
     
     // Source equality is UUID-only, so explicitly include all calculation fields.
+    // Id, isotope, curies, and date for every saved source, so edits that Source equality ignores still refresh the screen.
     private var sourceRecords: [String] {
         sourceManager.sources.flatMap { source in
             [source.id.uuidString, source.isotope, String(source.initialActivity),
@@ -238,6 +251,7 @@ struct CalculatorView: View {
         }
     }
 
+    // Values that mark an existing result out of date, including the saved source records.
     private var calculationInputs: [String] {
         var values = [sfdMm, thicknessMm, targetDensity, selectedFilmType.rawValue,
                       filmCategory, selectedMaterial.rawValue, String(correctionRatio),
@@ -249,11 +263,13 @@ struct CalculatorView: View {
         return values + sourceRecords
     }
 
+    // Keeps the picker on the same UUID, or clears it after that source is deleted.
     private func synchronizeSelectedSource() {
         guard let source = selectedSource else { return }
         selectedSource = sourceManager.sources.first { $0.id == source.id }
     }
 
+    // Selects a film that belongs to the active category.
     private func reconcileFilmSelection() {
         guard !filteredFilms.contains(where: { $0.film == selectedFilmType }) else { return }
         switch filmCategory {
@@ -265,6 +281,7 @@ struct CalculatorView: View {
     }
 
     /// Keep field context visible after editing; stack at accessibility text sizes.
+    // Decimal field with its unit in the label. Accessibility sizes stack the label above the field. Other sizes try a side-by-side row, then that stack when the row does not fit.
     private func numericInput(_ title: String, unit: String, text: Binding<String>) -> some View {
         let label = unit.isEmpty ? title : "\(title) (\(unit))"
         return Group {
@@ -300,6 +317,7 @@ struct CalculatorView: View {
         .foregroundStyle(.primary)
     }
 
+    // Starts a one-second countdown from the calculated minutes, or stops the countdown that is running.
     private func toggleTimer() {
         isTiming.toggle()
         if isTiming {
@@ -317,6 +335,7 @@ struct CalculatorView: View {
         }
     }
     
+    // Invalidates the countdown and clears the running flag.
     private func stopTimer() {
         timer?.invalidate()
         isTiming = false

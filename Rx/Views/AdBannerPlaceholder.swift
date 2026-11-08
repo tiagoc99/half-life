@@ -1,3 +1,6 @@
+// A one-row SwiftUI banner. It draws the rectangle.badge.advertisement symbol and the text "Ad placeholder".
+// The comment on the struct describes the row as a free-tier slot. No other Swift file creates an AdBannerPlaceholder, so the Sources, Calculator, and Settings screens leave this view out of the hierarchy. The body is static SwiftUI, with the accessibility label "Advertisement placeholder".
+
 import SwiftUI
 
 /// Minimal free-tier ad slot. Replace with a real ad SDK (e.g. AdMob) later if desired.
