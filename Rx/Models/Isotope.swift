@@ -1,3 +1,14 @@
+// The four industrial radiography isotopes this app can store: Ir-192, Se-75, Co-60, and Yb-169.
+// Each case carries the numbers the exposure math reads:
+// halfLifeDays is the half-life in days. Current activity uses A = A0 * 0.5 ^ (days / halfLifeDays).
+// gammaConstant is the specific gamma-ray constant in R·m²/(h·Ci): roentgen square meters per hour per curie.
+// hvtSteelMm is a carbon-steel half-value thickness in millimeters. In the exposure formula, one of these thicknesses doubles the time.
+// The stored values are Ir-192: 74 days, 0.592 R·m²/(h·Ci), 12 mm; Se-75: 120 days, 0.203, 8 mm; Co-60: 1925 days (about 5.27 years), 1.37, 22 mm; Yb-169: 32 days, 0.125, 3.5 mm.
+// These presets are provisional. The comments already in this file record that IAEA TCS 3 (1992) Table 3.2 lists Ir 0.50 and Co 1.33, and that capsule construction, certificate output, and film calibration still have to be reconciled.
+// Se-75 stays at the typical industrial 0.203. A QSA figure near 0.180 belongs to a particular capsule, and applying both would double-correct the output.
+// Yb-169 stays at 0.125. The steel half-value numbers are a legacy preset and are a different quantity from shielding half-value layers used for equal film density.
+// id is the raw value, the full isotope name. Source stores that string, and SourceManager looks it up again with Isotope(rawValue:).
+
 // Enum for RT NDT isotopes (Ir-192, Se-75, Co-60, Yb-169).
 // Half-life days; exposure constant R·m²/(h·Ci); provisional steel HVT mm.
 // Presets require source/technique provenance; no standards-compliance claim.

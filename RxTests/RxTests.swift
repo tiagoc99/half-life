@@ -1,3 +1,14 @@
+// Tests for the decay and exposure arithmetic, using the Swift Testing framework (@Test and #expect).
+// expectedMinutes writes the same provisional formula as SourceManager. A result within the tolerance stated on a test shows that the app code and this helper agree. That is a numerical regression check of these presets. A matched source, film, and technique calibration is still required before the minutes are used for an exposure.
+// The helper assumes a fresh source. It multiplies the 2.4 R D7 baseline by the film relative factor, by 10 ^ (0.4 * (density - 2.5)), by (1 + correctionPercent / 100), and by 2 ^ (thickness * steel factor / steel HVT). It then multiplies by the distance in meters squared, divides by gammaConstant times curies, and multiplies by 60 to get minutes.
+// For Custom, relativeFactor already divides the stored roentgens by 2.4, so multiplying by the 2.4 baseline returns the stored roentgen value. freshSource sets initialDate to now, so decay has not reduced the curies yet. Distances and thicknesses passed into calculateExposureTime are millimeters.
+// Half-life: an Ir-192 source of 100 Ci dated one half-life ago (halfLifeDays times 86400 seconds) is expected within 0.5 Ci of 50 Ci. A new Se-75 source of 40 Ci stays within 0.01 Ci of 40.
+// Film checks: D7's relative factor is 1, D2 is slower than D7 for Ir-192, and IX50 differs in id from IX80, as M100 does from SH800. One steel HVT doubles the attenuation term. Ir-192 stainless equivalence sits above carbon steel and between 1.1 and 1.2. Ir-192 aluminum equivalence is 0.47.
+// Density correction at 2.5 is 1. A 100 percent safety margin is a factor of 2. The Ir-192 case at 50 Ci, 700 mm, 12 mm carbon steel, D7, and density 2.5 follows that doubling within 1 percent.
+// Gamma checks: Se-75 equals 0.203 and lies between 0.20 and 0.55. Yb-169 equals 0.125 and lies between 0.125 and 0.25.
+// The reference scenarios call that model with chart-style inputs and expect the computed minutes within 1 percent of expectedMinutes. The Ir-192, D7, 12 mm, 700 mm, 100 Ci case also expects about 2.384 minutes, within 0.05 minute. Other scenarios add a wider bound on the number of minutes.
+// baseFilmFactor_documentedConstant_is2p4 uses a thickness of 0.0001 mm and checks that the 2.4 R baseline still describes the result. filmFactor_custom_readsUserDefaults stores 2.5 under customFilmFactor and asserts that custom.relativeFactor(for: .ir192) equals 2.5, then removes the preference. An isotope string of Not-An-Isotope makes calculateExposureTime return the 0 sentinel.
+
 //
 //  RxTests.swift
 //  RxTests
@@ -14,6 +25,7 @@ struct RxTests {
     // MARK: - Helpers
 
     /// Builds a fresh source at full activity (no decay).
+    // Builds a source at full activity. initialDate is the current instant, and activityCi is curies.
     private func freshSource(isotope: Isotope, activityCi: Double, name: String = "Ref") -> Source {
         Source(
             name: name,
@@ -26,6 +38,7 @@ struct RxTests {
     /// Analytic expected minutes from the app formula (documented assumptions).
     /// timeMin = 60 * baseFilmFactor(2.4) * relative * 10^(0.4*(D-2.5)) * (1+corr/100)
     ///           * 2^(equivThick/HVT) * (SFD_m)^2 / (Γ * A_Ci)
+    // Minutes from the documented formula, using the same preset tables as the app.
     private func expectedMinutes(
         isotope: Isotope,
         activityCi: Double,

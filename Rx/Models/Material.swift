@@ -1,3 +1,13 @@
+// Provisional steel-equivalence presets used to turn a typed thickness into equivalent carbon steel.
+// equivalenceFactor(for:) returns a unitless multiplier for one material and one isotope.
+// Equivalent steel thickness, in millimeters, is the entered thickness times this factor. Carbon steel is 1.0 for every isotope.
+// A factor below 1 treats the material as easier to penetrate than the same thickness of carbon steel, so the calculated time is shorter. A factor above 1 lengthens the time.
+// The tables differ by isotope because each preset is for that gamma energy. Composition, density, spectrum, and technique still have to match a real calibration. A missing pair falls back to 1.0.
+// Ir-192: stainless 1.15, aluminum 0.47, copper 1.37, titanium 1.06, nickel 1.30, zinc 1.25, plastic 0.05, concrete 0.10.
+// Se-75: stainless 1.15, aluminum 0.50, copper 1.40, titanium 1.05, nickel 1.30, zinc 1.25, plastic 0.05, concrete 0.10.
+// Co-60: stainless 1.12, aluminum 0.27, copper 1.21, titanium 0.85, nickel 1.14, zinc 1.10, plastic 0.03, concrete 0.08.
+// Yb-169: stainless 1.18, aluminum 0.60, copper 1.30, titanium 1.10, nickel 1.25, zinc 1.20, plastic 0.10, concrete 0.15.
+
 import Foundation
 
 // Provisional material steel-equivalence presets; gamma-specific provenance unverified.
@@ -17,6 +27,7 @@ enum Material: String, CaseIterable, Identifiable {
     var id: String { rawValue }
     
     // Steel-equivalence by isotope (lower = more penetration, shorter time).
+    // Looks up the steel-equivalence factor for this material and the source isotope.
     func equivalenceFactor(for isotope: Isotope) -> Double {
         let factors: [Isotope: Double]
         switch self {

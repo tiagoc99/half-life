@@ -1,3 +1,7 @@
+// UI test that opens the Add Source sheet from the Sources tab.
+// setUp sets continueAfterFailure to false, so the first failed assertion stops the test. The test launches the app, taps Sources when that tab exists, then taps Add.
+// The sheet counts as visible when the Add Source navigation bar, the Source Name field, or a Cancel button appears. A screenshot is attached under the name AfterAddTap and written to Desktop/rx-after-add.png in the home directory.
+
 //
 //  RxUITests.swift
 //  RxUITests
@@ -12,6 +16,7 @@ final class RxUITests: XCTestCase {
     }
 
     @MainActor
+    // Launches the app and checks that Add presents the new-source sheet.
     func testAddButtonOpensSheet() throws {
         let app = XCUIApplication()
         app.launch()

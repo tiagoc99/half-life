@@ -1,3 +1,12 @@
+// Radiographic film choices and the relative exposure factors the calculator applies to them.
+// Built-in films are scaled against Agfa Structurix D7, whose relative factor is 1.0. A larger factor means a slower film and a longer calculated time.
+// For every case except Custom, SourceManager multiplies that relative factor by a legacy 2.4 R baseline. The 2.4 is roentgens for D7 at optical density 2.5.
+// Custom is stored separately. The UserDefaults key customFilmFactor holds an absolute exposure in roentgens. customExposureR reads it, and uses 1.0 R when the key is absent. displayLabel shows the value as Custom with the roentgen amount.
+// relativeFactor(for:) on .custom returns those stored roentgens divided by 2.4. calculateExposureTime uses customExposureR itself for the custom case, so the 2.4 baseline is applied only once.
+// IX and K names share a factor with a D class and keep their own enum cases, so each picker row has its own id. The SH800 label is the legacy name kept in this list.
+// Relative factors in order Ir-192 / Se-75 / Co-60 / Yb-169: D2, M100, and SH800 are 8.0 / 6.4 / 9.0 / 9.0. D3 and MX125 are 5.0 / 3.6 / 5.0 / 4.1. D4 and T200 are 3.0 / 2.4 / 3.0 / 3.0.
+// D5, IX50, IX80, and AA400 are 1.5 / 1.4 / 1.5 / 1.7. D7 and IX100 are 1.0 for every isotope. D8 and IX25 are 0.6 for every isotope. An isotope missing from a table falls back to 1.0.
+
 import Foundation
 
 // Agfa Structurix D films plus IX / K equivalents with unique cases (unique ForEach ids).
@@ -27,6 +36,7 @@ enum FilmType: String, CaseIterable, Identifiable {
     
     // Stored customFilmFactor now denotes absolute exposure in R. Keep existing
     // numeric preferences unchanged; an absent preference uses the UI default 1 R.
+    // Absolute custom exposure in roentgens, from the customFilmFactor preference.
     static var customExposureR: Double {
         (UserDefaults.standard.object(forKey: "customFilmFactor") as? NSNumber)?.doubleValue ?? 1.0
     }
@@ -40,6 +50,7 @@ enum FilmType: String, CaseIterable, Identifiable {
     }
     
     // Relative speed factor by isotope (higher = slower film, longer time).
+    // Unitless speed factor for a built-in film. For Custom, stored roentgens divided by 2.4.
     func relativeFactor(for isotope: Isotope) -> Double {
         switch self {
         case .d2, .m100, .sh800:
