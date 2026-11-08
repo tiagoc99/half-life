@@ -1,0 +1,33 @@
+# Local backups and captures (retained on disk)
+UI-Backups/
+Fix-Backups/
+Layout-Backups/
+Final-Backups/
+debug-captures/
+rx-sources-copy.png
+# Xcode user state and generated output
+.DS_Store
+**/xcuserdata/
+*.xcuserstate
+DerivedData/
+build/
+*.xcarchive
+*.ipa
+*.dSYM/
+*.xcresult/
+*.log
+# Local secrets, signing material and environment overrides
+.env
+.env.*
+*.p8
+*.p12
+*.pfx
+*.pem
+*.key
+*.mobileprovision
+*.cer
+*.crt
+*.keystore
+.git-credentials
+Local.xcconfig
+Secrets.xcconfig

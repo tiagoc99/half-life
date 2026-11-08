@@ -1,0 +1,60 @@
+{
+  "identifier" : "A1B2C3D4",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+
+  ],
+  "settings" : {
+    "_failTransactionsEnabled" : false,
+    "_locale" : "en_US",
+    "_storefront" : "USA",
+    "_storeKitErrors" : [
+
+    ]
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "214A5B6C",
+      "localizations" : [
+
+      ],
+      "name" : "Half-Life Premium",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "2.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "314A5B6D",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Remove ads from Half-Life",
+              "displayName" : "Remove Ads",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.tiagocosta.HalfLife.removeAds",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Remove Ads",
+          "subscriptionGroupID" : "214A5B6C",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 3,
+    "minor" : 0
+  }
+}
